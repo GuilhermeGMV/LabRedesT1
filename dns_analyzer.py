@@ -21,6 +21,7 @@ DEFAULT_SERVERS = [
     ("8.8.4.4",        "Google Public DNS 2"),
     ("1.1.1.1",        "Cloudflare DNS"),
     ("1.0.0.1",        "Cloudflare DNS 2"),
+    ("1.1.1.3",        "Cloudflare DNS (bloqueio malware)"),
     ("9.9.9.9",        "Quad9 DNS"),
     ("208.67.222.222", "OpenDNS"),
     ("208.67.220.220", "OpenDNS 2"),
@@ -63,9 +64,6 @@ DNS_PORT = 53
 TIMEOUT  = 5  # segundos
 
 
-# ──────────────────────────────────────────────
-# Montagem da consulta DNS (RFC 1035)
-# ──────────────────────────────────────────────
 def build_query(domain, qtype=QTYPE_A):
     """Constrói uma mensagem de consulta DNS em formato binário."""
     # Header (12 bytes) — RFC 1035 §4.1.1
@@ -97,9 +95,6 @@ def encode_domain_name(domain):
     return result
 
 
-# ──────────────────────────────────────────────
-# Parsing da resposta DNS (RFC 1035)
-# ──────────────────────────────────────────────
 def parse_response(data):
     """Interpreta uma resposta DNS binária completa."""
     if len(data) < 12:
@@ -228,9 +223,6 @@ def decode_domain_name(data, offset):
     return ".".join(labels), final_offset
 
 
-# ──────────────────────────────────────────────
-# Comunicação UDP
-# ──────────────────────────────────────────────
 def send_query(server_ip, domain, qtype=QTYPE_A, timeout=None):
     """Envia consulta DNS via UDP e retorna a resposta parseada + tempo."""
     if timeout is None:
@@ -271,9 +263,6 @@ def send_query(server_ip, domain, qtype=QTYPE_A, timeout=None):
         sock.close()
 
 
-# ──────────────────────────────────────────────
-# Consulta multi-servidor
-# ──────────────────────────────────────────────
 def query_all_servers(domain, servers=None, qtype=QTYPE_A, timeout=TIMEOUT):
     """Consulta o domínio em todos os servidores e retorna resultados consolidados."""
     if servers is None:
@@ -289,9 +278,6 @@ def query_all_servers(domain, servers=None, qtype=QTYPE_A, timeout=TIMEOUT):
     return results
 
 
-# ──────────────────────────────────────────────
-# Detecção de bloqueio
-# ──────────────────────────────────────────────
 def detect_blocking(results):
     """Analisa os resultados e identifica possíveis bloqueios/manipulações."""
     alerts = []
@@ -383,9 +369,6 @@ def detect_blocking(results):
     return alerts
 
 
-# ──────────────────────────────────────────────
-# Exibição dos resultados
-# ──────────────────────────────────────────────
 RESET  = "\033[0m"
 BOLD   = "\033[1m"
 GREEN  = "\033[32m"
@@ -509,9 +492,6 @@ def display_results(domain, results, alerts):
     print()
 
 
-# ──────────────────────────────────────────────
-# Configuração de servidores personalizados
-# ──────────────────────────────────────────────
 def load_system_resolvers():
     """Tenta carregar servidores do /etc/resolv.conf (Linux)."""
     resolvers = []
@@ -574,7 +554,6 @@ Exemplos:
 
     args = parser.parse_args()
 
-    # Resolver tipo
     type_map = {
         "A": QTYPE_A, "AAAA": QTYPE_AAAA, "CNAME": QTYPE_CNAME,
         "NS": QTYPE_NS, "MX": QTYPE_MX, "SOA": QTYPE_SOA,
