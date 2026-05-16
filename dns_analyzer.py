@@ -1,10 +1,3 @@
-#!/usr/bin/env python3
-"""
-Ferramenta de análise de resolução DNS.
-
-Constrói consultas DNS em formato binário (RFC 1035) e envia via UDP porta 53.
-Interpreta respostas binárias, detecta bloqueios e compara múltiplos servidores.
-"""
 
 import socket
 import struct
@@ -27,7 +20,7 @@ DEFAULT_SERVERS = [
     ("208.67.220.220", "OpenDNS 2"),
 ]
 
-# Códigos RCODE (RFC 1035 §4.1.1)
+# Códigos RCODE
 RCODE_NAMES = {
     0: "NOERROR",
     1: "FORMERR",
